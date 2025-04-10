@@ -1,6 +1,6 @@
 import * as jspb from 'google-protobuf'
 
-import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
+import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb'; // proto import: "google/protobuf/empty.proto"
 
 
 export class Port extends jspb.Message {
@@ -409,9 +409,13 @@ export class RunStarlarkPackageArgs extends jspb.Message {
   getLocal_asU8(): Uint8Array;
   getLocal_asB64(): string;
   setLocal(value: Uint8Array | string): RunStarlarkPackageArgs;
+  hasLocal(): boolean;
+  clearLocal(): RunStarlarkPackageArgs;
 
   getRemote(): boolean;
   setRemote(value: boolean): RunStarlarkPackageArgs;
+  hasRemote(): boolean;
+  clearRemote(): RunStarlarkPackageArgs;
 
   getSerializedParams(): string;
   setSerializedParams(value: string): RunStarlarkPackageArgs;
@@ -486,8 +490,8 @@ export class RunStarlarkPackageArgs extends jspb.Message {
 export namespace RunStarlarkPackageArgs {
   export type AsObject = {
     packageId: string,
-    local: Uint8Array | string,
-    remote: boolean,
+    local?: Uint8Array | string,
+    remote?: boolean,
     serializedParams?: string,
     dryRun?: boolean,
     parallelism?: number,
@@ -1065,6 +1069,94 @@ export namespace ExecCommandResponse {
   export type AsObject = {
     exitCode: number,
     logOutput: string,
+  }
+}
+
+export class UpdateServiceArgs extends jspb.Message {
+  getServiceIdentifier(): string;
+  setServiceIdentifier(value: string): UpdateServiceArgs;
+
+  getImageName(): string;
+  setImageName(value: string): UpdateServiceArgs;
+  hasImageName(): boolean;
+  clearImageName(): UpdateServiceArgs;
+
+  getEntrypointArgsList(): Array<string>;
+  setEntrypointArgsList(value: Array<string>): UpdateServiceArgs;
+  clearEntrypointArgsList(): UpdateServiceArgs;
+  addEntrypointArgs(value: string, index?: number): UpdateServiceArgs;
+
+  getCmdArgsList(): Array<string>;
+  setCmdArgsList(value: Array<string>): UpdateServiceArgs;
+  clearCmdArgsList(): UpdateServiceArgs;
+  addCmdArgs(value: string, index?: number): UpdateServiceArgs;
+
+  getEnvVarsMap(): jspb.Map<string, string>;
+  clearEnvVarsMap(): UpdateServiceArgs;
+
+  getPrivatePortsMap(): jspb.Map<string, Port>;
+  clearPrivatePortsMap(): UpdateServiceArgs;
+
+  getFilesArtifactsMountsMap(): jspb.Map<string, FileArtifactMount>;
+  clearFilesArtifactsMountsMap(): UpdateServiceArgs;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateServiceArgs.AsObject;
+  static toObject(includeInstance: boolean, msg: UpdateServiceArgs): UpdateServiceArgs.AsObject;
+  static serializeBinaryToWriter(message: UpdateServiceArgs, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateServiceArgs;
+  static deserializeBinaryFromReader(message: UpdateServiceArgs, reader: jspb.BinaryReader): UpdateServiceArgs;
+}
+
+export namespace UpdateServiceArgs {
+  export type AsObject = {
+    serviceIdentifier: string,
+    imageName?: string,
+    entrypointArgsList: Array<string>,
+    cmdArgsList: Array<string>,
+    envVarsMap: Array<[string, string]>,
+    privatePortsMap: Array<[string, Port.AsObject]>,
+    filesArtifactsMountsMap: Array<[string, FileArtifactMount.AsObject]>,
+  }
+
+  export enum ImageNameCase { 
+    _IMAGE_NAME_NOT_SET = 0,
+    IMAGE_NAME = 2,
+  }
+}
+
+export class UpdateServiceResponse extends jspb.Message {
+  getSuccess(): boolean;
+  setSuccess(value: boolean): UpdateServiceResponse;
+
+  getUpdatedServiceInfo(): ServiceInfo | undefined;
+  setUpdatedServiceInfo(value?: ServiceInfo): UpdateServiceResponse;
+  hasUpdatedServiceInfo(): boolean;
+  clearUpdatedServiceInfo(): UpdateServiceResponse;
+
+  getErrorMessage(): string;
+  setErrorMessage(value: string): UpdateServiceResponse;
+  hasErrorMessage(): boolean;
+  clearErrorMessage(): UpdateServiceResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateServiceResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: UpdateServiceResponse): UpdateServiceResponse.AsObject;
+  static serializeBinaryToWriter(message: UpdateServiceResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateServiceResponse;
+  static deserializeBinaryFromReader(message: UpdateServiceResponse, reader: jspb.BinaryReader): UpdateServiceResponse;
+}
+
+export namespace UpdateServiceResponse {
+  export type AsObject = {
+    success: boolean,
+    updatedServiceInfo?: ServiceInfo.AsObject,
+    errorMessage?: string,
+  }
+
+  export enum ErrorMessageCase { 
+    _ERROR_MESSAGE_NOT_SET = 0,
+    ERROR_MESSAGE = 3,
   }
 }
 
@@ -1721,6 +1813,26 @@ export namespace StarlarkPackagePlanYamlArgs {
   export enum MainFunctionNameCase { 
     _MAIN_FUNCTION_NAME_NOT_SET = 0,
     MAIN_FUNCTION_NAME = 5,
+  }
+}
+
+export class FileArtifactMount extends jspb.Message {
+  getMountpointsList(): Array<string>;
+  setMountpointsList(value: Array<string>): FileArtifactMount;
+  clearMountpointsList(): FileArtifactMount;
+  addMountpoints(value: string, index?: number): FileArtifactMount;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): FileArtifactMount.AsObject;
+  static toObject(includeInstance: boolean, msg: FileArtifactMount): FileArtifactMount.AsObject;
+  static serializeBinaryToWriter(message: FileArtifactMount, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): FileArtifactMount;
+  static deserializeBinaryFromReader(message: FileArtifactMount, reader: jspb.BinaryReader): FileArtifactMount;
+}
+
+export namespace FileArtifactMount {
+  export type AsObject = {
+    mountpointsList: Array<string>,
   }
 }
 

@@ -26,6 +26,7 @@ const (
 	ApiContainerService_GetServices_FullMethodName                                = "/api_container_api.ApiContainerService/GetServices"
 	ApiContainerService_GetExistingAndHistoricalServiceIdentifiers_FullMethodName = "/api_container_api.ApiContainerService/GetExistingAndHistoricalServiceIdentifiers"
 	ApiContainerService_ExecCommand_FullMethodName                                = "/api_container_api.ApiContainerService/ExecCommand"
+	ApiContainerService_UpdateService_FullMethodName                              = "/api_container_api.ApiContainerService/UpdateService"
 	ApiContainerService_WaitForHttpGetEndpointAvailability_FullMethodName         = "/api_container_api.ApiContainerService/WaitForHttpGetEndpointAvailability"
 	ApiContainerService_WaitForHttpPostEndpointAvailability_FullMethodName        = "/api_container_api.ApiContainerService/WaitForHttpPostEndpointAvailability"
 	ApiContainerService_UploadFilesArtifact_FullMethodName                        = "/api_container_api.ApiContainerService/UploadFilesArtifact"
@@ -56,6 +57,8 @@ type ApiContainerServiceClient interface {
 	GetExistingAndHistoricalServiceIdentifiers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetExistingAndHistoricalServiceIdentifiersResponse, error)
 	// Executes the given command inside a running container
 	ExecCommand(ctx context.Context, in *ExecCommandArgs, opts ...grpc.CallOption) (*ExecCommandResponse, error)
+	// Updates an existing service using the provided parameters
+	UpdateService(ctx context.Context, in *UpdateServiceArgs, opts ...grpc.CallOption) (*UpdateServiceResponse, error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Get request
 	WaitForHttpGetEndpointAvailability(ctx context.Context, in *WaitForHttpGetEndpointAvailabilityArgs, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Post request
@@ -207,6 +210,15 @@ func (c *apiContainerServiceClient) GetExistingAndHistoricalServiceIdentifiers(c
 func (c *apiContainerServiceClient) ExecCommand(ctx context.Context, in *ExecCommandArgs, opts ...grpc.CallOption) (*ExecCommandResponse, error) {
 	out := new(ExecCommandResponse)
 	err := c.cc.Invoke(ctx, ApiContainerService_ExecCommand_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiContainerServiceClient) UpdateService(ctx context.Context, in *UpdateServiceArgs, opts ...grpc.CallOption) (*UpdateServiceResponse, error) {
+	out := new(UpdateServiceResponse)
+	err := c.cc.Invoke(ctx, ApiContainerService_UpdateService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -385,6 +397,8 @@ type ApiContainerServiceServer interface {
 	GetExistingAndHistoricalServiceIdentifiers(context.Context, *emptypb.Empty) (*GetExistingAndHistoricalServiceIdentifiersResponse, error)
 	// Executes the given command inside a running container
 	ExecCommand(context.Context, *ExecCommandArgs) (*ExecCommandResponse, error)
+	// Updates an existing service using the provided parameters
+	UpdateService(context.Context, *UpdateServiceArgs) (*UpdateServiceResponse, error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Get request
 	WaitForHttpGetEndpointAvailability(context.Context, *WaitForHttpGetEndpointAvailabilityArgs) (*emptypb.Empty, error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Post request
@@ -430,6 +444,9 @@ func (UnimplementedApiContainerServiceServer) GetExistingAndHistoricalServiceIde
 }
 func (UnimplementedApiContainerServiceServer) ExecCommand(context.Context, *ExecCommandArgs) (*ExecCommandResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecCommand not implemented")
+}
+func (UnimplementedApiContainerServiceServer) UpdateService(context.Context, *UpdateServiceArgs) (*UpdateServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateService not implemented")
 }
 func (UnimplementedApiContainerServiceServer) WaitForHttpGetEndpointAvailability(context.Context, *WaitForHttpGetEndpointAvailabilityArgs) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WaitForHttpGetEndpointAvailability not implemented")
@@ -597,6 +614,24 @@ func _ApiContainerService_ExecCommand_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiContainerServiceServer).ExecCommand(ctx, req.(*ExecCommandArgs))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiContainerService_UpdateService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateServiceArgs)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiContainerServiceServer).UpdateService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiContainerService_UpdateService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiContainerServiceServer).UpdateService(ctx, req.(*UpdateServiceArgs))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -846,6 +881,10 @@ var ApiContainerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExecCommand",
 			Handler:    _ApiContainerService_ExecCommand_Handler,
+		},
+		{
+			MethodName: "UpdateService",
+			Handler:    _ApiContainerService_UpdateService_Handler,
 		},
 		{
 			MethodName: "WaitForHttpGetEndpointAvailability",

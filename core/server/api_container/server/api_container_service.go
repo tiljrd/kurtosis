@@ -12,6 +12,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/kurtosis-tech/kurtosis/api/golang/core/lib/services"
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/service_user"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/docker_compose_transpiler"
@@ -390,6 +391,139 @@ func (apicService *ApiContainerService) ExecCommand(ctx context.Context, args *k
 		LogOutput: execResult.GetOutput(),
 	}
 	return resp, nil
+}
+
+func (apicService *ApiContainerService) UpdateService(
+	ctx context.Context,
+	args *kurtosis_core_rpc_api_bindings.UpdateServiceArgs,
+) (*kurtosis_core_rpc_api_bindings.UpdateServiceResponse, error) {
+
+	serviceName := service.ServiceName(args.GetServiceIdentifier())
+
+	// Retrieve the current service info
+	serviceInfos, err := apicService.GetServices(
+		ctx,
+		binding_constructors.NewGetServicesArgs(map[string]bool{
+			string(serviceName): true,
+		}),
+	)
+	if err != nil {
+		return nil, stacktrace.Propagate(err, "An error occurred getting service info for service '%v'", serviceName)
+	}
+
+	currServiceInfo, found := serviceInfos.GetServiceInfo()[string(serviceName)]
+	if !found {
+		return nil, stacktrace.NewError("No service found with identifier '%v'", serviceName)
+	}
+
+	// Merge image
+	mergedImage := currServiceInfo.Container.ImageName
+	if override := args.GetImageName(); override != "" {
+		mergedImage = override
+	}
+
+	// Merge entrypoint
+	mergedEntrypoint := currServiceInfo.Container.EntrypointArgs
+	if len(args.GetEntrypointArgs()) > 0 {
+		mergedEntrypoint = args.GetEntrypointArgs()
+	}
+
+	// Merge cmd
+	mergedCmd := currServiceInfo.Container.CmdArgs
+	if len(args.GetCmdArgs()) > 0 {
+		mergedCmd = args.GetCmdArgs()
+	}
+
+	// Merge environment variables
+	mergedEnvVars := map[string]string{}
+	for k, v := range currServiceInfo.Container.EnvVars {
+		mergedEnvVars[k] = v
+	}
+	for k, v := range args.GetEnvVars() {
+		mergedEnvVars[k] = v
+	}
+
+	// Merge private ports
+	mergedPrivatePorts := map[string]*kurtosis_core_rpc_api_bindings.Port{}
+	for portId, currPort := range currServiceInfo.GetPrivatePorts() {
+		mergedPrivatePorts[portId] = currPort
+	}
+
+	tiniEnabled := currServiceInfo.GetTiniEnabled()
+	for portId, overridePort := range args.GetPrivatePorts() {
+		mergedPrivatePorts[portId] = overridePort
+	}
+
+	serviceConfigSnippet := services.GetFullServiceConfigStarlark(
+		mergedImage,
+		mergedPrivatePorts,
+		nil,
+		mergedEntrypoint,
+		mergedCmd,
+		mergedEnvVars,
+		currServiceInfo.GetMaxMillicpus(),
+		currServiceInfo.GetMaxMemoryMegabytes(),
+		currServiceInfo.GetMinMillicpus(),
+		currServiceInfo.GetMinMemoryMegabytes(),
+		currServiceInfo.User,
+		currServiceInfo.Tolerations,
+		currServiceInfo.GetNodeSelectors(),
+		currServiceInfo.GetLabels(),
+		&tiniEnabled,
+		currServiceInfo.GetPrivateIpAddr(),
+	)
+
+	starlarkScript := fmt.Sprintf(`
+def run(plan):
+    plan.add_service(%q, %s)
+`, serviceName, serviceConfigSnippet)
+
+	lineStream := apicService.startosisRunner.Run(
+		ctx,
+		false,
+		1,
+		"update-service",
+		map[string]string{},
+		"",
+		"",
+		starlarkScript,
+		"",
+		image_download_mode.ImageDownloadMode_Always,
+		false,
+		nil,
+	)
+
+	var starlarkErr error
+	for responseLine := range lineStream {
+		if execErr := responseLine.GetError(); execErr != nil {
+			starlarkErr = stacktrace.NewError(execErr.GetExecutionError().ErrorMessage)
+		}
+	}
+
+	if starlarkErr != nil {
+		errStr := stacktrace.Propagate(starlarkErr, "Starlark update script failed").Error()
+		return &kurtosis_core_rpc_api_bindings.UpdateServiceResponse{
+			Success:      false,
+			ErrorMessage: &errStr,
+		}, nil
+	}
+
+	updatedServiceInfo, err := apicService.getServiceInfoForIdentifier(ctx, string(serviceName))
+	if err != nil {
+		errMsg := stacktrace.Propagate(
+			err, "Service %q was updated, but there was an error fetching its updated info",
+			serviceName,
+		).Error()
+		return &kurtosis_core_rpc_api_bindings.UpdateServiceResponse{
+			Success:      false,
+			ErrorMessage: &errMsg,
+		}, nil
+	}
+
+	return &kurtosis_core_rpc_api_bindings.UpdateServiceResponse{
+		Success:            true,
+		UpdatedServiceInfo: updatedServiceInfo,
+	}, nil
 }
 
 func (apicService *ApiContainerService) WaitForHttpGetEndpointAvailability(ctx context.Context, args *kurtosis_core_rpc_api_bindings.WaitForHttpGetEndpointAvailabilityArgs) (*emptypb.Empty, error) {

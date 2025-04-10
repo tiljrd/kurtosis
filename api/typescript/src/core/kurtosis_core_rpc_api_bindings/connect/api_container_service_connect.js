@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConnectServicesArgs, ConnectServicesResponse, DownloadFilesArtifactArgs, ExecCommandArgs, ExecCommandResponse, GetExistingAndHistoricalServiceIdentifiersResponse, GetServicesArgs, GetServicesResponse, GetStarlarkRunResponse, InspectFilesArtifactContentsRequest, InspectFilesArtifactContentsResponse, ListFilesArtifactNamesAndUuidsResponse, PlanYaml, RunStarlarkPackageArgs, RunStarlarkScriptArgs, StarlarkPackagePlanYamlArgs, StarlarkRunResponseLine, StarlarkScriptPlanYamlArgs, StoreFilesArtifactFromServiceArgs, StoreFilesArtifactFromServiceResponse, StoreWebFilesArtifactArgs, StoreWebFilesArtifactResponse, StreamedDataChunk, UploadFilesArtifactResponse, WaitForHttpGetEndpointAvailabilityArgs, WaitForHttpPostEndpointAvailabilityArgs } from "./api_container_service_pb.js";
+import { ConnectServicesArgs, ConnectServicesResponse, DownloadFilesArtifactArgs, ExecCommandArgs, ExecCommandResponse, GetExistingAndHistoricalServiceIdentifiersResponse, GetServicesArgs, GetServicesResponse, GetStarlarkRunResponse, InspectFilesArtifactContentsRequest, InspectFilesArtifactContentsResponse, ListFilesArtifactNamesAndUuidsResponse, PlanYaml, RunStarlarkPackageArgs, RunStarlarkScriptArgs, StarlarkPackagePlanYamlArgs, StarlarkRunResponseLine, StarlarkScriptPlanYamlArgs, StoreFilesArtifactFromServiceArgs, StoreFilesArtifactFromServiceResponse, StoreWebFilesArtifactArgs, StoreWebFilesArtifactResponse, StreamedDataChunk, UpdateServiceArgs, UpdateServiceResponse, UploadFilesArtifactResponse, WaitForHttpGetEndpointAvailabilityArgs, WaitForHttpPostEndpointAvailabilityArgs } from "./api_container_service_pb.js";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -76,6 +76,17 @@ export const ApiContainerService = {
       name: "ExecCommand",
       I: ExecCommandArgs,
       O: ExecCommandResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * Updates an existing service using the provided parameters
+     *
+     * @generated from rpc api_container_api.ApiContainerService.UpdateService
+     */
+    updateService: {
+      name: "UpdateService",
+      I: UpdateServiceArgs,
+      O: UpdateServiceResponse,
       kind: MethodKind.Unary,
     },
     /**

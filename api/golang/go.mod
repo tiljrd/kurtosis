@@ -10,7 +10,7 @@ replace (
 )
 
 require (
-	connectrpc.com/connect v1.11.1
+	connectrpc.com/connect v1.13.0
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/ghodss/yaml v1.0.0

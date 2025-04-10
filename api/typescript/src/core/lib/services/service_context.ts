@@ -1,6 +1,12 @@
 import { err, ok, Result } from 'neverthrow';
-import { newExecCommandArgs } from '../constructor_calls';
-import type { ExecCommandArgs, ServiceStatus, Container } from '../../kurtosis_core_rpc_api_bindings/api_container_service_pb';
+import {newExecCommandArgs, newUpdateServiceArgs} from '../constructor_calls';
+import {
+    ExecCommandArgs,
+    ServiceStatus,
+    Container,
+    UpdateServiceArgs,
+    ServiceInfo, Port
+} from '../../kurtosis_core_rpc_api_bindings/api_container_service_pb';
 import type { PortSpec } from './port_spec';
 import type { ServiceName, ServiceUUID } from './service';
 import { GenericApiContainerClient } from '../enclaves/generic_api_container_client';
@@ -70,5 +76,43 @@ export class ServiceContext {
 
         const execCommandResponse = execCommandResponseResult.value
         return ok([execCommandResponse.getExitCode(), execCommandResponse.getLogOutput()]);
+    }
+
+    public async updateService(
+        imageName: string,
+        entrypointArgs: string[],
+        cmdArgs: string[],
+        envVars: Map<string, string>,
+        privatePorts: Map<string, Port>,
+        filesArtifactsMounts: Map<string, string[]>
+    ): Promise<Result<[boolean, ServiceInfo], Error>> {
+        const updateServiceArgs: UpdateServiceArgs = newUpdateServiceArgs(
+            this.serviceName,
+            imageName,
+            entrypointArgs,
+            cmdArgs,
+            envVars,
+            privatePorts,
+            filesArtifactsMounts
+        );
+
+        const updateServiceResponseResult = await this.client.updateService(updateServiceArgs);
+        if (updateServiceResponseResult.isErr()) {
+            return err(updateServiceResponseResult.error);
+        }
+
+        const updateCommandResponse = updateServiceResponseResult.value;
+        // If there's an error message in the response, consider it a failure
+        const errorMessage = updateCommandResponse.getErrorMessage();
+        if (errorMessage && errorMessage.trim() !== "") {
+            return err(new Error(`UpdateService failed for service '${this.serviceName}': ${errorMessage}`));
+        }
+
+        const updatedServiceInfo = updateCommandResponse.getUpdatedServiceInfo();
+        if (!updatedServiceInfo) {
+            return err(new Error(`UpdateService did not return updated service info for service '${this.serviceName}'`));
+        }
+
+        return ok([updateCommandResponse.getSuccess(), updatedServiceInfo]);
     }
 }

@@ -19,7 +19,7 @@ import (
 // generated with a version of connect newer than the one compiled into your binary. You can fix the
 // problem by either regenerating this code with an older version of connect or updating the connect
 // version compiled into your binary.
-const _ = connect.IsAtLeastVersion0_1_0
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// EngineServiceName is the fully-qualified name of the EngineService service.
@@ -93,46 +93,55 @@ type EngineServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewEngineServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) EngineServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	engineServiceMethods := kurtosis_engine_rpc_api_bindings.File_engine_service_proto.Services().ByName("EngineService").Methods()
 	return &engineServiceClient{
 		getEngineInfo: connect.NewClient[emptypb.Empty, kurtosis_engine_rpc_api_bindings.GetEngineInfoResponse](
 			httpClient,
 			baseURL+EngineServiceGetEngineInfoProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("GetEngineInfo")),
+			connect.WithClientOptions(opts...),
 		),
 		createEnclave: connect.NewClient[kurtosis_engine_rpc_api_bindings.CreateEnclaveArgs, kurtosis_engine_rpc_api_bindings.CreateEnclaveResponse](
 			httpClient,
 			baseURL+EngineServiceCreateEnclaveProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("CreateEnclave")),
+			connect.WithClientOptions(opts...),
 		),
 		getEnclaves: connect.NewClient[emptypb.Empty, kurtosis_engine_rpc_api_bindings.GetEnclavesResponse](
 			httpClient,
 			baseURL+EngineServiceGetEnclavesProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("GetEnclaves")),
+			connect.WithClientOptions(opts...),
 		),
 		getExistingAndHistoricalEnclaveIdentifiers: connect.NewClient[emptypb.Empty, kurtosis_engine_rpc_api_bindings.GetExistingAndHistoricalEnclaveIdentifiersResponse](
 			httpClient,
 			baseURL+EngineServiceGetExistingAndHistoricalEnclaveIdentifiersProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("GetExistingAndHistoricalEnclaveIdentifiers")),
+			connect.WithClientOptions(opts...),
 		),
 		stopEnclave: connect.NewClient[kurtosis_engine_rpc_api_bindings.StopEnclaveArgs, emptypb.Empty](
 			httpClient,
 			baseURL+EngineServiceStopEnclaveProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("StopEnclave")),
+			connect.WithClientOptions(opts...),
 		),
 		destroyEnclave: connect.NewClient[kurtosis_engine_rpc_api_bindings.DestroyEnclaveArgs, emptypb.Empty](
 			httpClient,
 			baseURL+EngineServiceDestroyEnclaveProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("DestroyEnclave")),
+			connect.WithClientOptions(opts...),
 		),
 		clean: connect.NewClient[kurtosis_engine_rpc_api_bindings.CleanArgs, kurtosis_engine_rpc_api_bindings.CleanResponse](
 			httpClient,
 			baseURL+EngineServiceCleanProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("Clean")),
+			connect.WithClientOptions(opts...),
 		),
 		getServiceLogs: connect.NewClient[kurtosis_engine_rpc_api_bindings.GetServiceLogsArgs, kurtosis_engine_rpc_api_bindings.GetServiceLogsResponse](
 			httpClient,
 			baseURL+EngineServiceGetServiceLogsProcedure,
-			opts...,
+			connect.WithSchema(engineServiceMethods.ByName("GetServiceLogs")),
+			connect.WithClientOptions(opts...),
 		),
 	}
 }
@@ -221,45 +230,54 @@ type EngineServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewEngineServiceHandler(svc EngineServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	engineServiceMethods := kurtosis_engine_rpc_api_bindings.File_engine_service_proto.Services().ByName("EngineService").Methods()
 	engineServiceGetEngineInfoHandler := connect.NewUnaryHandler(
 		EngineServiceGetEngineInfoProcedure,
 		svc.GetEngineInfo,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("GetEngineInfo")),
+		connect.WithHandlerOptions(opts...),
 	)
 	engineServiceCreateEnclaveHandler := connect.NewUnaryHandler(
 		EngineServiceCreateEnclaveProcedure,
 		svc.CreateEnclave,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("CreateEnclave")),
+		connect.WithHandlerOptions(opts...),
 	)
 	engineServiceGetEnclavesHandler := connect.NewUnaryHandler(
 		EngineServiceGetEnclavesProcedure,
 		svc.GetEnclaves,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("GetEnclaves")),
+		connect.WithHandlerOptions(opts...),
 	)
 	engineServiceGetExistingAndHistoricalEnclaveIdentifiersHandler := connect.NewUnaryHandler(
 		EngineServiceGetExistingAndHistoricalEnclaveIdentifiersProcedure,
 		svc.GetExistingAndHistoricalEnclaveIdentifiers,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("GetExistingAndHistoricalEnclaveIdentifiers")),
+		connect.WithHandlerOptions(opts...),
 	)
 	engineServiceStopEnclaveHandler := connect.NewUnaryHandler(
 		EngineServiceStopEnclaveProcedure,
 		svc.StopEnclave,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("StopEnclave")),
+		connect.WithHandlerOptions(opts...),
 	)
 	engineServiceDestroyEnclaveHandler := connect.NewUnaryHandler(
 		EngineServiceDestroyEnclaveProcedure,
 		svc.DestroyEnclave,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("DestroyEnclave")),
+		connect.WithHandlerOptions(opts...),
 	)
 	engineServiceCleanHandler := connect.NewUnaryHandler(
 		EngineServiceCleanProcedure,
 		svc.Clean,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("Clean")),
+		connect.WithHandlerOptions(opts...),
 	)
 	engineServiceGetServiceLogsHandler := connect.NewServerStreamHandler(
 		EngineServiceGetServiceLogsProcedure,
 		svc.GetServiceLogs,
-		opts...,
+		connect.WithSchema(engineServiceMethods.ByName("GetServiceLogs")),
+		connect.WithHandlerOptions(opts...),
 	)
 	return "/engine_api.EngineService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {

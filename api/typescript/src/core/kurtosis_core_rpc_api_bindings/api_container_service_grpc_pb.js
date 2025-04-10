@@ -258,6 +258,28 @@ function deserialize_api_container_api_StreamedDataChunk(buffer_arg) {
   return api_container_service_pb.StreamedDataChunk.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_api_container_api_UpdateServiceArgs(arg) {
+  if (!(arg instanceof api_container_service_pb.UpdateServiceArgs)) {
+    throw new Error('Expected argument of type api_container_api.UpdateServiceArgs');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_api_container_api_UpdateServiceArgs(buffer_arg) {
+  return api_container_service_pb.UpdateServiceArgs.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_api_container_api_UpdateServiceResponse(arg) {
+  if (!(arg instanceof api_container_service_pb.UpdateServiceResponse)) {
+    throw new Error('Expected argument of type api_container_api.UpdateServiceResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_api_container_api_UpdateServiceResponse(buffer_arg) {
+  return api_container_service_pb.UpdateServiceResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_api_container_api_UploadFilesArtifactResponse(arg) {
   if (!(arg instanceof api_container_service_pb.UploadFilesArtifactResponse)) {
     throw new Error('Expected argument of type api_container_api.UploadFilesArtifactResponse');
@@ -375,6 +397,18 @@ execCommand: {
     requestDeserialize: deserialize_api_container_api_ExecCommandArgs,
     responseSerialize: serialize_api_container_api_ExecCommandResponse,
     responseDeserialize: deserialize_api_container_api_ExecCommandResponse,
+  },
+  // Updates an existing service using the provided parameters
+updateService: {
+    path: '/api_container_api.ApiContainerService/UpdateService',
+    requestStream: false,
+    responseStream: false,
+    requestType: api_container_service_pb.UpdateServiceArgs,
+    responseType: api_container_service_pb.UpdateServiceResponse,
+    requestSerialize: serialize_api_container_api_UpdateServiceArgs,
+    requestDeserialize: deserialize_api_container_api_UpdateServiceArgs,
+    responseSerialize: serialize_api_container_api_UpdateServiceResponse,
+    responseDeserialize: deserialize_api_container_api_UpdateServiceResponse,
   },
   // Block until the given HTTP endpoint returns available, calling it through a HTTP Get request
 waitForHttpGetEndpointAvailability: {
@@ -520,4 +554,4 @@ getStarlarkPackagePlanYaml: {
   },
 };
 
-exports.ApiContainerServiceClient = grpc.makeGenericClientConstructor(ApiContainerServiceService);
+exports.ApiContainerServiceClient = grpc.makeGenericClientConstructor(ApiContainerServiceService, 'ApiContainerService');

@@ -56,7 +56,7 @@ require (
 )
 
 require (
-	connectrpc.com/connect v1.11.1
+	connectrpc.com/connect v1.13.0
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/hashicorp/golang-lru/v2 v2.0.7

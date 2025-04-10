@@ -540,6 +540,56 @@ pub struct ExecCommandResponse {
     pub log_output: ::prost::alloc::string::String,
 }
 /// ==============================================================================================
+///                                           Update Service Command
+/// ==============================================================================================
+/// Request message for updating an existing service
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateServiceArgs {
+    /// Identifier for the service (e.g., service name or UUID)
+    #[prost(string, tag = "1")]
+    pub service_identifier: ::prost::alloc::string::String,
+    /// New image name to use for the service container
+    #[prost(string, optional, tag = "2")]
+    pub image_name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Arguments passed to the container's entrypoint
+    #[prost(string, repeated, tag = "3")]
+    pub entrypoint_args: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Arguments passed to the container's command
+    #[prost(string, repeated, tag = "4")]
+    pub cmd_args: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Environment variables to be set in the container
+    #[prost(map = "string, string", tag = "5")]
+    pub env_vars: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        ::prost::alloc::string::String,
+    >,
+    /// Private ports mapping
+    #[prost(map = "string, message", tag = "6")]
+    pub private_ports: ::std::collections::HashMap<::prost::alloc::string::String, Port>,
+    /// File artifact mounts mapping
+    #[prost(map = "string, message", tag = "7")]
+    pub files_artifacts_mounts: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        FileArtifactMount,
+    >,
+}
+/// Response message for the update service operation
+/// Response message for the update service operation
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateServiceResponse {
+    /// Indicates whether the service update was successful
+    #[prost(bool, tag = "1")]
+    pub success: bool,
+    /// Returns the updated service info
+    #[prost(message, optional, tag = "2")]
+    pub updated_service_info: ::core::option::Option<ServiceInfo>,
+    /// Error message in case of a failure
+    #[prost(string, optional, tag = "3")]
+    pub error_message: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// ==============================================================================================
 ///                              Wait For HTTP Get Endpoint Availability
 /// ==============================================================================================
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -797,6 +847,12 @@ pub struct StarlarkPackagePlanYamlArgs {
     /// The name of the main function, the default value is "run"
     #[prost(string, optional, tag = "5")]
     pub main_function_name: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FileArtifactMount {
+    #[prost(string, repeated, tag = "1")]
+    pub mountpoints: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -1198,6 +1254,37 @@ pub mod api_container_service_client {
                     GrpcMethod::new(
                         "api_container_api.ApiContainerService",
                         "ExecCommand",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Updates an existing service using the provided parameters
+        pub async fn update_service(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateServiceArgs>,
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateServiceResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/api_container_api.ApiContainerService/UpdateService",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "api_container_api.ApiContainerService",
+                        "UpdateService",
                     ),
                 );
             self.inner.unary(req, path, codec).await
@@ -1628,6 +1715,14 @@ pub mod api_container_service_server {
             request: tonic::Request<super::ExecCommandArgs>,
         ) -> std::result::Result<
             tonic::Response<super::ExecCommandResponse>,
+            tonic::Status,
+        >;
+        /// Updates an existing service using the provided parameters
+        async fn update_service(
+            &self,
+            request: tonic::Request<super::UpdateServiceArgs>,
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateServiceResponse>,
             tonic::Status,
         >;
         /// Block until the given HTTP endpoint returns available, calling it through a HTTP Get request
@@ -2067,6 +2162,52 @@ pub mod api_container_service_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = ExecCommandSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/api_container_api.ApiContainerService/UpdateService" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateServiceSvc<T: ApiContainerService>(pub Arc<T>);
+                    impl<
+                        T: ApiContainerService,
+                    > tonic::server::UnaryService<super::UpdateServiceArgs>
+                    for UpdateServiceSvc<T> {
+                        type Response = super::UpdateServiceResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::UpdateServiceArgs>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).update_service(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = UpdateServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

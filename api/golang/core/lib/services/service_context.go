@@ -103,3 +103,38 @@ func (service *ServiceContext) ExecCommand(command []string) (int32, string, err
 	}
 	return resp.ExitCode, resp.LogOutput, nil
 }
+
+func (service *ServiceContext) UpdateService(
+	imageName string,
+	entrypointArgs []string,
+	cmdArgs []string,
+	envVars map[string]string,
+	privatePorts map[string]*kurtosis_core_rpc_api_bindings.Port,
+	filesArtifactsMounts map[string]*kurtosis_core_rpc_api_bindings.FileArtifactMount,
+) (bool, *kurtosis_core_rpc_api_bindings.ServiceInfo, error) {
+	serviceName := service.serviceName
+
+	args := binding_constructors.NewUpdateServiceArgs(
+		string(serviceName),
+		imageName,
+		entrypointArgs,
+		cmdArgs,
+		envVars,
+		privatePorts,
+		filesArtifactsMounts,
+	)
+
+	resp, err := service.client.UpdateService(context.Background(), args)
+	if err != nil {
+		return false, nil, stacktrace.Propagate(
+			err,
+			"An error occurred while updating service '%v'",
+			serviceName)
+	}
+
+	if resp.ErrorMessage != nil && *resp.ErrorMessage != "" {
+		return resp.Success, resp.UpdatedServiceInfo, stacktrace.NewError("UpdateService failed for service '%v': %s", serviceName, *resp.ErrorMessage)
+	}
+
+	return resp.Success, resp.UpdatedServiceInfo, nil
+}

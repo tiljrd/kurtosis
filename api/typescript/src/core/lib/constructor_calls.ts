@@ -14,6 +14,8 @@ import {
     ServiceInfo,
     GetServicesResponse,
     DownloadFilesArtifactArgs,
+    UpdateServiceArgs,
+    FileArtifactMount
 } from '../kurtosis_core_rpc_api_bindings/api_container_service_pb';
 import { ServiceName } from './services/service';
 
@@ -60,6 +62,48 @@ export function newExecCommandArgs(setServiceIdentifier: ServiceName, command: s
     const result: ExecCommandArgs = new ExecCommandArgs();
     result.setServiceIdentifier(setServiceIdentifier);
     result.setCommandArgsList(command);
+
+    return result;
+}
+
+// ==============================================================================================
+//                                          Update Service
+// ==============================================================================================
+export function newUpdateServiceArgs(
+    serviceIdentifier: ServiceName,
+    imageName: string,
+    entrypointArgs: string[],
+    cmdArgs: string[],
+    envVars: Map<string, string>,
+    privatePorts: Map<string, Port>,
+    filesArtifactsMounts: Map<string, string[]>
+): UpdateServiceArgs {
+    const result: UpdateServiceArgs = new UpdateServiceArgs();
+    result.setServiceIdentifier(serviceIdentifier);
+
+    if (imageName) {
+        result.setImageName(imageName);
+    }
+
+    result.setEntrypointArgsList(entrypointArgs);
+    result.setCmdArgsList(cmdArgs);
+
+    const envVarsMap = result.getEnvVarsMap();
+    for (const [key, value] of envVars.entries()) {
+        envVarsMap.set(key, value);
+    }
+
+    const privatePortsMap = result.getPrivatePortsMap();
+    for (const [key, port] of privatePorts.entries()) {
+        privatePortsMap.set(key, port);
+    }
+
+    const filesArtifactsMap = result.getFilesArtifactsMountsMap();
+    for (const [artifactName, mountpoints] of filesArtifactsMounts.entries()) {
+        const fileArtifactMount = new FileArtifactMount();
+        fileArtifactMount.setMountpointsList(mountpoints);
+        filesArtifactsMap.set(artifactName, fileArtifactMount);
+    }
 
     return result;
 }

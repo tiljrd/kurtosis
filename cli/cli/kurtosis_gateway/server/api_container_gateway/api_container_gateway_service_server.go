@@ -147,6 +147,15 @@ func (service *ApiContainerGatewayServiceServer) ExecCommand(ctx context.Context
 	return remoteApiContainerResponse, nil
 }
 
+func (service *ApiContainerGatewayServiceServer) UpdateService(ctx context.Context, args *kurtosis_core_rpc_api_bindings.UpdateServiceArgs) (*kurtosis_core_rpc_api_bindings.UpdateServiceResponse, error) {
+	remoteApiContainerResponse, err := service.remoteApiContainerClient.UpdateService(ctx, args)
+	if err != nil {
+		return nil, stacktrace.Propagate(err, errorCallingRemoteApiContainerFromGateway)
+	}
+
+	return remoteApiContainerResponse, nil
+}
+
 func (service *ApiContainerGatewayServiceServer) WaitForHttpGetEndpointAvailability(ctx context.Context, args *kurtosis_core_rpc_api_bindings.WaitForHttpGetEndpointAvailabilityArgs) (*emptypb.Empty, error) {
 	remoteApiContainerResponse, err := service.remoteApiContainerClient.WaitForHttpGetEndpointAvailability(ctx, args)
 	if err != nil {

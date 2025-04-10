@@ -363,6 +363,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExecCommandResult"
+  /enclaves/{enclave_identifier}/services/{service_identifier}/update:
+    post:
+      tags:
+        - enclave
+      summary: Update a service configuration
+      description: |
+        Update the configuration for a specific service. This includes updating the image, command,
+        entrypoint, environment variables, ports, and file artifact mounts.
+      parameters:
+        - $ref: "#/components/parameters/enclave_identifier"
+        - $ref: "#/components/parameters/service_identifier"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateServiceRequest"
+      responses:
+        default:
+          $ref: "#/components/responses/NotOk"
+        "200":
+          description: Successful update of the service configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceInfo"
 
   /enclaves/{enclave_identifier}/services/{service_identifier}/endpoints/{port_number}/availability:
     get:
@@ -992,6 +1018,42 @@ components:
         - number
         - transport_protocol
       description: Shared Objects (Used By Multiple Endpoints)
+
+    FileArtifactMount:
+      type: object
+      properties:
+        mountpoints:
+          type: array
+          items:
+            type: string
+      required:
+        - mountpoints
+
+    UpdateServiceRequest:
+      type: object
+      properties:
+        image_name:
+          type: string
+        cmd_args:
+          type: array
+          items:
+            type: string
+        entrypoint_args:
+          type: array
+          items:
+            type: string
+        env_vars:
+          type: object
+          additionalProperties:
+            type: string
+        private_ports:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Port"
+        files_artifacts_mounts:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/FileArtifactMount"
 
     HttpMethodAvailability:
       type: string

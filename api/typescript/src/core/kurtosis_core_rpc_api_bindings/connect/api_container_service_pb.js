@@ -459,6 +459,42 @@ export const ExecCommandResponse = proto3.makeMessageType(
 
 /**
  * ==============================================================================================
+ *                                          Update Service Command
+ * ==============================================================================================
+ * Request message for updating an existing service
+ *
+ * @generated from message api_container_api.UpdateServiceArgs
+ */
+export const UpdateServiceArgs = proto3.makeMessageType(
+  "api_container_api.UpdateServiceArgs",
+  () => [
+    { no: 1, name: "service_identifier", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "image_name", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "entrypoint_args", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 4, name: "cmd_args", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 5, name: "env_vars", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 6, name: "private_ports", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "message", T: Port} },
+    { no: 7, name: "files_artifacts_mounts", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "message", T: FileArtifactMount} },
+  ],
+);
+
+/**
+ * Response message for the update service operation
+ * Response message for the update service operation
+ *
+ * @generated from message api_container_api.UpdateServiceResponse
+ */
+export const UpdateServiceResponse = proto3.makeMessageType(
+  "api_container_api.UpdateServiceResponse",
+  () => [
+    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 2, name: "updated_service_info", kind: "message", T: ServiceInfo },
+    { no: 3, name: "error_message", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ],
+);
+
+/**
+ * ==============================================================================================
  *                             Wait For HTTP Get Endpoint Availability
  * ==============================================================================================
  *
@@ -722,6 +758,16 @@ export const StarlarkPackagePlanYamlArgs = proto3.makeMessageType(
     { no: 3, name: "is_remote", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 4, name: "relative_path_to_main_file", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 5, name: "main_function_name", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ],
+);
+
+/**
+ * @generated from message api_container_api.FileArtifactMount
+ */
+export const FileArtifactMount = proto3.makeMessageType(
+  "api_container_api.FileArtifactMount",
+  () => [
+    { no: 1, name: "mountpoints", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
   ],
 );
 

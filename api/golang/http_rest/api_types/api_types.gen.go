@@ -237,6 +237,11 @@ type FileArtifactDescription struct {
 	TextPreview *string `json:"text_preview,omitempty"`
 }
 
+// FileArtifactMount defines model for FileArtifactMount.
+type FileArtifactMount struct {
+	Mountpoints []string `json:"mountpoints"`
+}
+
 // FileArtifactReference Files Artifact identifier
 type FileArtifactReference struct {
 	// Name UUID of the files artifact, for use when referencing it in the future
@@ -584,6 +589,16 @@ type Timestamp = time.Time
 // 2 - UDP
 type TransportProtocol string
 
+// UpdateServiceRequest defines model for UpdateServiceRequest.
+type UpdateServiceRequest struct {
+	CmdArgs              *[]string                     `json:"cmd_args,omitempty"`
+	EntrypointArgs       *[]string                     `json:"entrypoint_args,omitempty"`
+	EnvVars              *map[string]string            `json:"env_vars,omitempty"`
+	FilesArtifactsMounts *map[string]FileArtifactMount `json:"files_artifacts_mounts,omitempty"`
+	ImageName            *string                       `json:"image_name,omitempty"`
+	PrivatePorts         *map[string]Port              `json:"private_ports,omitempty"`
+}
+
 // ArtifactIdentifier defines model for artifact_identifier.
 type ArtifactIdentifier = string
 
@@ -735,6 +750,9 @@ type PostEnclavesEnclaveIdentifierServicesConnectionJSONRequestBody = Connect
 
 // PostEnclavesEnclaveIdentifierServicesServiceIdentifierCommandJSONRequestBody defines body for PostEnclavesEnclaveIdentifierServicesServiceIdentifierCommand for application/json ContentType.
 type PostEnclavesEnclaveIdentifierServicesServiceIdentifierCommandJSONRequestBody = ExecCommand
+
+// PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateJSONRequestBody defines body for PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate for application/json ContentType.
+type PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateJSONRequestBody = UpdateServiceRequest
 
 // PostEnclavesEnclaveIdentifierStarlarkPackagesMultipartRequestBody defines body for PostEnclavesEnclaveIdentifierStarlarkPackages for multipart/form-data ContentType.
 type PostEnclavesEnclaveIdentifierStarlarkPackagesMultipartRequestBody = PostEnclavesEnclaveIdentifierStarlarkPackagesMultipartBody

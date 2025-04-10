@@ -18,7 +18,7 @@ import {
     StarlarkRunResponseLine,
     StoreWebFilesArtifactArgs,
     StoreWebFilesArtifactResponse,
-    StreamedDataChunk,
+    StreamedDataChunk, UpdateServiceArgs, UpdateServiceResponse,
     UploadFilesArtifactResponse,
     WaitForHttpGetEndpointAvailabilityArgs,
     WaitForHttpPostEndpointAvailabilityArgs,
@@ -156,6 +156,29 @@ export class GrpcNodeApiContainerClient implements GenericApiContainerClient {
 
         const execCommandResponse = execCommandResponseResult.value;
         return ok(execCommandResponse)
+    }
+
+    public async updateService(updateServiceArgs: UpdateServiceArgs): Promise<Result<UpdateServiceResponse, Error>> {
+        const updateServicePromise: Promise<Result<UpdateServiceResponse, Error>> = new Promise((resolve, _unusedReject) => {
+            this.client.updateService(updateServiceArgs, (error: ServiceError | null, response?: UpdateServiceResponse) => {
+                if (error === null) {
+                    if (!response) {
+                        resolve(err(new Error("No error was encountered but the response was still falsy; this should never happen")));
+                    } else {
+                        resolve(ok(response));
+                    }
+                } else {
+                    resolve(err(error));
+                }
+            })
+        });
+
+        const updateServiceResponseResult: Result<UpdateServiceResponse, Error> = await updateServicePromise;
+        if (updateServiceResponseResult.isErr()) {
+            return err(updateServiceResponseResult.error);
+        }
+        const updateServiceResponse = updateServiceResponseResult.value;
+        return ok(updateServiceResponse);
     }
 
     public async uploadFiles(name: string, payload: Uint8Array): Promise<Result<UploadFilesArtifactResponse, Error>> {

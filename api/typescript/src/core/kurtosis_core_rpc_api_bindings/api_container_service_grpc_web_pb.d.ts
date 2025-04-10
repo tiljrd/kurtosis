@@ -1,7 +1,7 @@
 import * as grpcWeb from 'grpc-web';
 
-import * as api_container_service_pb from './api_container_service_pb';
-import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
+import * as api_container_service_pb from './api_container_service_pb'; // proto import: "api_container_service.proto"
+import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb'; // proto import: "google/protobuf/empty.proto"
 
 
 export class ApiContainerServiceClient {
@@ -39,6 +39,13 @@ export class ApiContainerServiceClient {
     callback: (err: grpcWeb.RpcError,
                response: api_container_service_pb.ExecCommandResponse) => void
   ): grpcWeb.ClientReadableStream<api_container_service_pb.ExecCommandResponse>;
+
+  updateService(
+    request: api_container_service_pb.UpdateServiceArgs,
+    metadata: grpcWeb.Metadata | undefined,
+    callback: (err: grpcWeb.RpcError,
+               response: api_container_service_pb.UpdateServiceResponse) => void
+  ): grpcWeb.ClientReadableStream<api_container_service_pb.UpdateServiceResponse>;
 
   waitForHttpGetEndpointAvailability(
     request: api_container_service_pb.WaitForHttpGetEndpointAvailabilityArgs,
@@ -146,6 +153,11 @@ export class ApiContainerServicePromiseClient {
     request: api_container_service_pb.ExecCommandArgs,
     metadata?: grpcWeb.Metadata
   ): Promise<api_container_service_pb.ExecCommandResponse>;
+
+  updateService(
+    request: api_container_service_pb.UpdateServiceArgs,
+    metadata?: grpcWeb.Metadata
+  ): Promise<api_container_service_pb.UpdateServiceResponse>;
 
   waitForHttpGetEndpointAvailability(
     request: api_container_service_pb.WaitForHttpGetEndpointAvailabilityArgs,

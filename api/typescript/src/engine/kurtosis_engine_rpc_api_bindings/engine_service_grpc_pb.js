@@ -241,4 +241,4 @@ getServiceLogs: {
   },
 };
 
-exports.EngineServiceClient = grpc.makeGenericClientConstructor(EngineServiceService);
+exports.EngineServiceClient = grpc.makeGenericClientConstructor(EngineServiceService, 'EngineService');

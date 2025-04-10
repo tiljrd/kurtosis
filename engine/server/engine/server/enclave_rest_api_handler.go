@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/kurtosis-tech/kurtosis/engine/server/engine/enclave_manager"
@@ -416,6 +417,96 @@ func (manager *enclaveRuntime) PostEnclavesEnclaveIdentifierServicesServiceIdent
 		LogOutput: execResult.LogOutput,
 	}
 	return api.PostEnclavesEnclaveIdentifierServicesServiceIdentifierCommand200JSONResponse(response), nil
+}
+
+// (POST /enclaves/{enclave_identifier}/services/{service_identifier}/update)
+func (manager *enclaveRuntime) PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate(
+	ctx context.Context,
+	request api.PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequestObject,
+) (api.PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponseObject, error) {
+
+	enclaveIdentifier := request.EnclaveIdentifier
+	serviceIdentifier := request.ServiceIdentifier
+
+	apiContainerClient, responseErr := manager.getApiClientOrResponseError(enclaveIdentifier)
+	if responseErr != nil {
+		return api.PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdatedefaultJSONResponse{
+			Body:       *responseErr,
+			StatusCode: int(responseErr.Code),
+		}, nil
+	}
+	logrus.Infof("Updating service %s from enclave %s", serviceIdentifier, enclaveIdentifier)
+
+	var imageNamePtr *string
+	if request.Body.ImageName != nil && *request.Body.ImageName != "" {
+		imageNamePtr = request.Body.ImageName
+	}
+
+	var inputPrivatePorts map[string]api_type.Port
+	if request.Body.PrivatePorts != nil {
+		inputPrivatePorts = *request.Body.PrivatePorts
+	} else {
+		inputPrivatePorts = make(map[string]api_type.Port)
+	}
+
+	privatePorts := make(map[string]*rpc_api.Port)
+	for name, port := range inputPrivatePorts {
+		// Convert the user-supplied protocol to a gRPC enum
+		var grpcTransportProtocol rpc_api.Port_TransportProtocol
+		switch strings.ToLower(string(port.TransportProtocol)) {
+		case "tcp":
+			grpcTransportProtocol = rpc_api.Port_TCP
+		case "udp":
+			grpcTransportProtocol = rpc_api.Port_UDP
+		default:
+			// Fallback if we don't recognize the protocol
+			grpcTransportProtocol = rpc_api.Port_TCP
+		}
+
+		convertedPort := &rpc_api.Port{
+			Number:            uint32(port.Number),
+			TransportProtocol: grpcTransportProtocol,
+		}
+		privatePorts[name] = convertedPort
+	}
+
+	var inputFilesArtifactsMounts map[string]api_type.FileArtifactMount
+	if request.Body.FilesArtifactsMounts != nil {
+		inputFilesArtifactsMounts = *request.Body.FilesArtifactsMounts
+	} else {
+		inputFilesArtifactsMounts = make(map[string]api_type.FileArtifactMount)
+	}
+
+	filesArtifactsMounts := make(map[string]*rpc_api.FileArtifactMount)
+	for name, fam := range inputFilesArtifactsMounts {
+		// Just copy over the mountpoints field
+		convertedFam := &rpc_api.FileArtifactMount{
+			Mountpoints: fam.Mountpoints,
+		}
+		filesArtifactsMounts[name] = convertedFam
+	}
+
+	updateArgs := &rpc_api.UpdateServiceArgs{
+		ServiceIdentifier:    serviceIdentifier,
+		ImageName:            imageNamePtr,
+		EntrypointArgs:       utils.DerefWith(request.Body.EntrypointArgs, []string{}),
+		CmdArgs:              utils.DerefWith(request.Body.CmdArgs, []string{}),
+		EnvVars:              utils.DerefWith(request.Body.EnvVars, map[string]string{}),
+		PrivatePorts:         privatePorts,
+		FilesArtifactsMounts: filesArtifactsMounts,
+	}
+
+	updateResp, err := (*apiContainerClient).UpdateService(ctx, updateArgs)
+	if err != nil {
+		return nil, stacktrace.Propagate(err, "Failed to update service using gRPC call")
+	}
+
+	if updateResp.ErrorMessage != nil && *updateResp.ErrorMessage != "" {
+		return nil, stacktrace.NewError("Service update failed: %s", *updateResp.ErrorMessage)
+	}
+
+	result := to_http.ToHttpServiceInfo(updateResp.UpdatedServiceInfo)
+	return api.PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate200JSONResponse(result), nil
 }
 
 // (GET /enclaves/{enclave_identifier}/services/{service_identifier}/endpoints/{port_number}/availability)

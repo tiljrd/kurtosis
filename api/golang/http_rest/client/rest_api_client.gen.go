@@ -160,6 +160,11 @@ type ClientInterface interface {
 	// GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogs request
 	GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogs(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, params *GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBody request with any body
+	PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBody(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, body PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetEnclavesEnclaveIdentifierStarlark request
 	GetEnclavesEnclaveIdentifierStarlark(ctx context.Context, enclaveIdentifier EnclaveIdentifier, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -481,6 +486,30 @@ func (c *Client) GetEnclavesEnclaveIdentifierServicesServiceIdentifierEndpointsP
 
 func (c *Client) GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogs(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, params *GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsRequest(c.Server, enclaveIdentifier, serviceIdentifier, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBody(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequestWithBody(c.Server, enclaveIdentifier, serviceIdentifier, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, body PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequest(c.Server, enclaveIdentifier, serviceIdentifier, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1712,6 +1741,60 @@ func NewGetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsRequest(server 
 	return req, nil
 }
 
+// NewPostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequest calls the generic PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate builder with application/json body
+func NewPostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequest(server string, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, body PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequestWithBody(server, enclaveIdentifier, serviceIdentifier, "application/json", bodyReader)
+}
+
+// NewPostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequestWithBody generates requests for PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate with any type of body
+func NewPostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateRequestWithBody(server string, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "enclave_identifier", runtime.ParamLocationPath, enclaveIdentifier)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "service_identifier", runtime.ParamLocationPath, serviceIdentifier)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/enclaves/%s/services/%s/update", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetEnclavesEnclaveIdentifierStarlarkRequest generates requests for GetEnclavesEnclaveIdentifierStarlark
 func NewGetEnclavesEnclaveIdentifierStarlarkRequest(server string, enclaveIdentifier EnclaveIdentifier) (*http.Request, error) {
 	var err error
@@ -2181,6 +2264,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsWithResponse request
 	GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsWithResponse(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, params *GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsParams, reqEditors ...RequestEditorFn) (*GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsResponse, error)
+
+	// PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBodyWithResponse request with any body
+	PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBodyWithResponse(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse, error)
+
+	PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithResponse(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, body PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse, error)
 
 	// GetEnclavesEnclaveIdentifierStarlarkWithResponse request
 	GetEnclavesEnclaveIdentifierStarlarkWithResponse(ctx context.Context, enclaveIdentifier EnclaveIdentifier, reqEditors ...RequestEditorFn) (*GetEnclavesEnclaveIdentifierStarlarkResponse, error)
@@ -2669,6 +2757,29 @@ func (r GetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsResponse) Statu
 	return 0
 }
 
+type PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ServiceInfo
+	JSONDefault  *NotOk
+}
+
+// Status returns HTTPResponse.Status
+func (r PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetEnclavesEnclaveIdentifierStarlarkResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3069,6 +3180,23 @@ func (c *ClientWithResponses) GetEnclavesEnclaveIdentifierServicesServiceIdentif
 		return nil, err
 	}
 	return ParseGetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsResponse(rsp)
+}
+
+// PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBodyWithResponse request with arbitrary body returning *PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse
+func (c *ClientWithResponses) PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBodyWithResponse(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse, error) {
+	rsp, err := c.PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithBody(ctx, enclaveIdentifier, serviceIdentifier, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithResponse(ctx context.Context, enclaveIdentifier EnclaveIdentifier, serviceIdentifier ServiceIdentifier, body PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse, error) {
+	rsp, err := c.PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdate(ctx, enclaveIdentifier, serviceIdentifier, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse(rsp)
 }
 
 // GetEnclavesEnclaveIdentifierStarlarkWithResponse request returning *GetEnclavesEnclaveIdentifierStarlarkResponse
@@ -3782,6 +3910,39 @@ func ParseGetEnclavesEnclaveIdentifierServicesServiceIdentifierLogsResponse(rsp 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ServiceLogs
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest NotOk
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse parses an HTTP response from a PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateWithResponse call
+func ParsePostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse(rsp *http.Response) (*PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostEnclavesEnclaveIdentifierServicesServiceIdentifierUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ServiceInfo
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

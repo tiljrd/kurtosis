@@ -1331,6 +1331,122 @@ export declare class ExecCommandResponse extends Message<ExecCommandResponse> {
 
 /**
  * ==============================================================================================
+ *                                          Update Service Command
+ * ==============================================================================================
+ * Request message for updating an existing service
+ *
+ * @generated from message api_container_api.UpdateServiceArgs
+ */
+export declare class UpdateServiceArgs extends Message<UpdateServiceArgs> {
+  /**
+   * Identifier for the service (e.g., service name or UUID)
+   *
+   * @generated from field: string service_identifier = 1;
+   */
+  serviceIdentifier: string;
+
+  /**
+   * New image name to use for the service container
+   *
+   * @generated from field: optional string image_name = 2;
+   */
+  imageName?: string;
+
+  /**
+   * Arguments passed to the container's entrypoint
+   *
+   * @generated from field: repeated string entrypoint_args = 3;
+   */
+  entrypointArgs: string[];
+
+  /**
+   * Arguments passed to the container's command
+   *
+   * @generated from field: repeated string cmd_args = 4;
+   */
+  cmdArgs: string[];
+
+  /**
+   * Environment variables to be set in the container
+   *
+   * @generated from field: map<string, string> env_vars = 5;
+   */
+  envVars: { [key: string]: string };
+
+  /**
+   * Private ports mapping
+   *
+   * @generated from field: map<string, api_container_api.Port> private_ports = 6;
+   */
+  privatePorts: { [key: string]: Port };
+
+  /**
+   * File artifact mounts mapping
+   *
+   * @generated from field: map<string, api_container_api.FileArtifactMount> files_artifacts_mounts = 7;
+   */
+  filesArtifactsMounts: { [key: string]: FileArtifactMount };
+
+  constructor(data?: PartialMessage<UpdateServiceArgs>);
+
+  static readonly runtime: typeof proto3;
+  static readonly typeName = "api_container_api.UpdateServiceArgs";
+  static readonly fields: FieldList;
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateServiceArgs;
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UpdateServiceArgs;
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UpdateServiceArgs;
+
+  static equals(a: UpdateServiceArgs | PlainMessage<UpdateServiceArgs> | undefined, b: UpdateServiceArgs | PlainMessage<UpdateServiceArgs> | undefined): boolean;
+}
+
+/**
+ * Response message for the update service operation
+ * Response message for the update service operation
+ *
+ * @generated from message api_container_api.UpdateServiceResponse
+ */
+export declare class UpdateServiceResponse extends Message<UpdateServiceResponse> {
+  /**
+   * Indicates whether the service update was successful
+   *
+   * @generated from field: bool success = 1;
+   */
+  success: boolean;
+
+  /**
+   * Returns the updated service info
+   *
+   * @generated from field: api_container_api.ServiceInfo updated_service_info = 2;
+   */
+  updatedServiceInfo?: ServiceInfo;
+
+  /**
+   * Error message in case of a failure
+   *
+   * @generated from field: optional string error_message = 3;
+   */
+  errorMessage?: string;
+
+  constructor(data?: PartialMessage<UpdateServiceResponse>);
+
+  static readonly runtime: typeof proto3;
+  static readonly typeName = "api_container_api.UpdateServiceResponse";
+  static readonly fields: FieldList;
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateServiceResponse;
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UpdateServiceResponse;
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UpdateServiceResponse;
+
+  static equals(a: UpdateServiceResponse | PlainMessage<UpdateServiceResponse> | undefined, b: UpdateServiceResponse | PlainMessage<UpdateServiceResponse> | undefined): boolean;
+}
+
+/**
+ * ==============================================================================================
  *                             Wait For HTTP Get Endpoint Availability
  * ==============================================================================================
  *
@@ -2111,5 +2227,29 @@ export declare class StarlarkPackagePlanYamlArgs extends Message<StarlarkPackage
   static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StarlarkPackagePlanYamlArgs;
 
   static equals(a: StarlarkPackagePlanYamlArgs | PlainMessage<StarlarkPackagePlanYamlArgs> | undefined, b: StarlarkPackagePlanYamlArgs | PlainMessage<StarlarkPackagePlanYamlArgs> | undefined): boolean;
+}
+
+/**
+ * @generated from message api_container_api.FileArtifactMount
+ */
+export declare class FileArtifactMount extends Message<FileArtifactMount> {
+  /**
+   * @generated from field: repeated string mountpoints = 1;
+   */
+  mountpoints: string[];
+
+  constructor(data?: PartialMessage<FileArtifactMount>);
+
+  static readonly runtime: typeof proto3;
+  static readonly typeName = "api_container_api.FileArtifactMount";
+  static readonly fields: FieldList;
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FileArtifactMount;
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): FileArtifactMount;
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): FileArtifactMount;
+
+  static equals(a: FileArtifactMount | PlainMessage<FileArtifactMount> | undefined, b: FileArtifactMount | PlainMessage<FileArtifactMount> | undefined): boolean;
 }
 

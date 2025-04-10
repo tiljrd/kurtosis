@@ -418,6 +418,35 @@ func NewExecCommandResponse(exitCode int32, logOutput string) *kurtosis_core_rpc
 
 // ==============================================================================================
 //
+//  Update Service
+//
+// ==============================================================================================
+
+func NewUpdateServiceArgs(
+	serviceIdentifier string,
+	imageName string,
+	entrypointArgs []string,
+	cmdArgs []string,
+	envVars map[string]string,
+	privatePorts map[string]*kurtosis_core_rpc_api_bindings.Port,
+	filesArtifactsMounts map[string]*kurtosis_core_rpc_api_bindings.FileArtifactMount,
+) *kurtosis_core_rpc_api_bindings.UpdateServiceArgs {
+	imageNameCopy := new(string)
+	*imageNameCopy = imageName
+
+	return &kurtosis_core_rpc_api_bindings.UpdateServiceArgs{
+		ServiceIdentifier:    serviceIdentifier,
+		ImageName:            imageNameCopy,
+		EntrypointArgs:       entrypointArgs,
+		CmdArgs:              cmdArgs,
+		EnvVars:              envVars,
+		PrivatePorts:         privatePorts,
+		FilesArtifactsMounts: filesArtifactsMounts,
+	}
+}
+
+// ==============================================================================================
+//
 //	Upload Files Artifact
 //
 // ==============================================================================================

@@ -19,7 +19,7 @@ import (
 // generated with a version of connect newer than the one compiled into your binary. You can fix the
 // problem by either regenerating this code with an older version of connect or updating the connect
 // version compiled into your binary.
-const _ = connect.IsAtLeastVersion0_1_0
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// ApiContainerServiceName is the fully-qualified name of the ApiContainerService service.
@@ -52,6 +52,9 @@ const (
 	// ApiContainerServiceExecCommandProcedure is the fully-qualified name of the ApiContainerService's
 	// ExecCommand RPC.
 	ApiContainerServiceExecCommandProcedure = "/api_container_api.ApiContainerService/ExecCommand"
+	// ApiContainerServiceUpdateServiceProcedure is the fully-qualified name of the
+	// ApiContainerService's UpdateService RPC.
+	ApiContainerServiceUpdateServiceProcedure = "/api_container_api.ApiContainerService/UpdateService"
 	// ApiContainerServiceWaitForHttpGetEndpointAvailabilityProcedure is the fully-qualified name of the
 	// ApiContainerService's WaitForHttpGetEndpointAvailability RPC.
 	ApiContainerServiceWaitForHttpGetEndpointAvailabilityProcedure = "/api_container_api.ApiContainerService/WaitForHttpGetEndpointAvailability"
@@ -104,6 +107,8 @@ type ApiContainerServiceClient interface {
 	GetExistingAndHistoricalServiceIdentifiers(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[kurtosis_core_rpc_api_bindings.GetExistingAndHistoricalServiceIdentifiersResponse], error)
 	// Executes the given command inside a running container
 	ExecCommand(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.ExecCommandArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.ExecCommandResponse], error)
+	// Updates an existing service using the provided parameters
+	UpdateService(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.UpdateServiceArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.UpdateServiceResponse], error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Get request
 	WaitForHttpGetEndpointAvailability(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.WaitForHttpGetEndpointAvailabilityArgs]) (*connect.Response[emptypb.Empty], error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Post request
@@ -137,96 +142,121 @@ type ApiContainerServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewApiContainerServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ApiContainerServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	apiContainerServiceMethods := kurtosis_core_rpc_api_bindings.File_api_container_service_proto.Services().ByName("ApiContainerService").Methods()
 	return &apiContainerServiceClient{
 		runStarlarkScript: connect.NewClient[kurtosis_core_rpc_api_bindings.RunStarlarkScriptArgs, kurtosis_core_rpc_api_bindings.StarlarkRunResponseLine](
 			httpClient,
 			baseURL+ApiContainerServiceRunStarlarkScriptProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("RunStarlarkScript")),
+			connect.WithClientOptions(opts...),
 		),
 		uploadStarlarkPackage: connect.NewClient[kurtosis_core_rpc_api_bindings.StreamedDataChunk, emptypb.Empty](
 			httpClient,
 			baseURL+ApiContainerServiceUploadStarlarkPackageProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("UploadStarlarkPackage")),
+			connect.WithClientOptions(opts...),
 		),
 		runStarlarkPackage: connect.NewClient[kurtosis_core_rpc_api_bindings.RunStarlarkPackageArgs, kurtosis_core_rpc_api_bindings.StarlarkRunResponseLine](
 			httpClient,
 			baseURL+ApiContainerServiceRunStarlarkPackageProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("RunStarlarkPackage")),
+			connect.WithClientOptions(opts...),
 		),
 		getServices: connect.NewClient[kurtosis_core_rpc_api_bindings.GetServicesArgs, kurtosis_core_rpc_api_bindings.GetServicesResponse](
 			httpClient,
 			baseURL+ApiContainerServiceGetServicesProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("GetServices")),
+			connect.WithClientOptions(opts...),
 		),
 		getExistingAndHistoricalServiceIdentifiers: connect.NewClient[emptypb.Empty, kurtosis_core_rpc_api_bindings.GetExistingAndHistoricalServiceIdentifiersResponse](
 			httpClient,
 			baseURL+ApiContainerServiceGetExistingAndHistoricalServiceIdentifiersProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("GetExistingAndHistoricalServiceIdentifiers")),
+			connect.WithClientOptions(opts...),
 		),
 		execCommand: connect.NewClient[kurtosis_core_rpc_api_bindings.ExecCommandArgs, kurtosis_core_rpc_api_bindings.ExecCommandResponse](
 			httpClient,
 			baseURL+ApiContainerServiceExecCommandProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("ExecCommand")),
+			connect.WithClientOptions(opts...),
+		),
+		updateService: connect.NewClient[kurtosis_core_rpc_api_bindings.UpdateServiceArgs, kurtosis_core_rpc_api_bindings.UpdateServiceResponse](
+			httpClient,
+			baseURL+ApiContainerServiceUpdateServiceProcedure,
+			connect.WithSchema(apiContainerServiceMethods.ByName("UpdateService")),
+			connect.WithClientOptions(opts...),
 		),
 		waitForHttpGetEndpointAvailability: connect.NewClient[kurtosis_core_rpc_api_bindings.WaitForHttpGetEndpointAvailabilityArgs, emptypb.Empty](
 			httpClient,
 			baseURL+ApiContainerServiceWaitForHttpGetEndpointAvailabilityProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("WaitForHttpGetEndpointAvailability")),
+			connect.WithClientOptions(opts...),
 		),
 		waitForHttpPostEndpointAvailability: connect.NewClient[kurtosis_core_rpc_api_bindings.WaitForHttpPostEndpointAvailabilityArgs, emptypb.Empty](
 			httpClient,
 			baseURL+ApiContainerServiceWaitForHttpPostEndpointAvailabilityProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("WaitForHttpPostEndpointAvailability")),
+			connect.WithClientOptions(opts...),
 		),
 		uploadFilesArtifact: connect.NewClient[kurtosis_core_rpc_api_bindings.StreamedDataChunk, kurtosis_core_rpc_api_bindings.UploadFilesArtifactResponse](
 			httpClient,
 			baseURL+ApiContainerServiceUploadFilesArtifactProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("UploadFilesArtifact")),
+			connect.WithClientOptions(opts...),
 		),
 		downloadFilesArtifact: connect.NewClient[kurtosis_core_rpc_api_bindings.DownloadFilesArtifactArgs, kurtosis_core_rpc_api_bindings.StreamedDataChunk](
 			httpClient,
 			baseURL+ApiContainerServiceDownloadFilesArtifactProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("DownloadFilesArtifact")),
+			connect.WithClientOptions(opts...),
 		),
 		storeWebFilesArtifact: connect.NewClient[kurtosis_core_rpc_api_bindings.StoreWebFilesArtifactArgs, kurtosis_core_rpc_api_bindings.StoreWebFilesArtifactResponse](
 			httpClient,
 			baseURL+ApiContainerServiceStoreWebFilesArtifactProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("StoreWebFilesArtifact")),
+			connect.WithClientOptions(opts...),
 		),
 		storeFilesArtifactFromService: connect.NewClient[kurtosis_core_rpc_api_bindings.StoreFilesArtifactFromServiceArgs, kurtosis_core_rpc_api_bindings.StoreFilesArtifactFromServiceResponse](
 			httpClient,
 			baseURL+ApiContainerServiceStoreFilesArtifactFromServiceProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("StoreFilesArtifactFromService")),
+			connect.WithClientOptions(opts...),
 		),
 		listFilesArtifactNamesAndUuids: connect.NewClient[emptypb.Empty, kurtosis_core_rpc_api_bindings.ListFilesArtifactNamesAndUuidsResponse](
 			httpClient,
 			baseURL+ApiContainerServiceListFilesArtifactNamesAndUuidsProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("ListFilesArtifactNamesAndUuids")),
+			connect.WithClientOptions(opts...),
 		),
 		inspectFilesArtifactContents: connect.NewClient[kurtosis_core_rpc_api_bindings.InspectFilesArtifactContentsRequest, kurtosis_core_rpc_api_bindings.InspectFilesArtifactContentsResponse](
 			httpClient,
 			baseURL+ApiContainerServiceInspectFilesArtifactContentsProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("InspectFilesArtifactContents")),
+			connect.WithClientOptions(opts...),
 		),
 		connectServices: connect.NewClient[kurtosis_core_rpc_api_bindings.ConnectServicesArgs, kurtosis_core_rpc_api_bindings.ConnectServicesResponse](
 			httpClient,
 			baseURL+ApiContainerServiceConnectServicesProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("ConnectServices")),
+			connect.WithClientOptions(opts...),
 		),
 		getStarlarkRun: connect.NewClient[emptypb.Empty, kurtosis_core_rpc_api_bindings.GetStarlarkRunResponse](
 			httpClient,
 			baseURL+ApiContainerServiceGetStarlarkRunProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("GetStarlarkRun")),
+			connect.WithClientOptions(opts...),
 		),
 		getStarlarkScriptPlanYaml: connect.NewClient[kurtosis_core_rpc_api_bindings.StarlarkScriptPlanYamlArgs, kurtosis_core_rpc_api_bindings.PlanYaml](
 			httpClient,
 			baseURL+ApiContainerServiceGetStarlarkScriptPlanYamlProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("GetStarlarkScriptPlanYaml")),
+			connect.WithClientOptions(opts...),
 		),
 		getStarlarkPackagePlanYaml: connect.NewClient[kurtosis_core_rpc_api_bindings.StarlarkPackagePlanYamlArgs, kurtosis_core_rpc_api_bindings.PlanYaml](
 			httpClient,
 			baseURL+ApiContainerServiceGetStarlarkPackagePlanYamlProcedure,
-			opts...,
+			connect.WithSchema(apiContainerServiceMethods.ByName("GetStarlarkPackagePlanYaml")),
+			connect.WithClientOptions(opts...),
 		),
 	}
 }
@@ -239,6 +269,7 @@ type apiContainerServiceClient struct {
 	getServices                                *connect.Client[kurtosis_core_rpc_api_bindings.GetServicesArgs, kurtosis_core_rpc_api_bindings.GetServicesResponse]
 	getExistingAndHistoricalServiceIdentifiers *connect.Client[emptypb.Empty, kurtosis_core_rpc_api_bindings.GetExistingAndHistoricalServiceIdentifiersResponse]
 	execCommand                                *connect.Client[kurtosis_core_rpc_api_bindings.ExecCommandArgs, kurtosis_core_rpc_api_bindings.ExecCommandResponse]
+	updateService                              *connect.Client[kurtosis_core_rpc_api_bindings.UpdateServiceArgs, kurtosis_core_rpc_api_bindings.UpdateServiceResponse]
 	waitForHttpGetEndpointAvailability         *connect.Client[kurtosis_core_rpc_api_bindings.WaitForHttpGetEndpointAvailabilityArgs, emptypb.Empty]
 	waitForHttpPostEndpointAvailability        *connect.Client[kurtosis_core_rpc_api_bindings.WaitForHttpPostEndpointAvailabilityArgs, emptypb.Empty]
 	uploadFilesArtifact                        *connect.Client[kurtosis_core_rpc_api_bindings.StreamedDataChunk, kurtosis_core_rpc_api_bindings.UploadFilesArtifactResponse]
@@ -282,6 +313,11 @@ func (c *apiContainerServiceClient) GetExistingAndHistoricalServiceIdentifiers(c
 // ExecCommand calls api_container_api.ApiContainerService.ExecCommand.
 func (c *apiContainerServiceClient) ExecCommand(ctx context.Context, req *connect.Request[kurtosis_core_rpc_api_bindings.ExecCommandArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.ExecCommandResponse], error) {
 	return c.execCommand.CallUnary(ctx, req)
+}
+
+// UpdateService calls api_container_api.ApiContainerService.UpdateService.
+func (c *apiContainerServiceClient) UpdateService(ctx context.Context, req *connect.Request[kurtosis_core_rpc_api_bindings.UpdateServiceArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.UpdateServiceResponse], error) {
+	return c.updateService.CallUnary(ctx, req)
 }
 
 // WaitForHttpGetEndpointAvailability calls
@@ -365,6 +401,8 @@ type ApiContainerServiceHandler interface {
 	GetExistingAndHistoricalServiceIdentifiers(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[kurtosis_core_rpc_api_bindings.GetExistingAndHistoricalServiceIdentifiersResponse], error)
 	// Executes the given command inside a running container
 	ExecCommand(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.ExecCommandArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.ExecCommandResponse], error)
+	// Updates an existing service using the provided parameters
+	UpdateService(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.UpdateServiceArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.UpdateServiceResponse], error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Get request
 	WaitForHttpGetEndpointAvailability(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.WaitForHttpGetEndpointAvailabilityArgs]) (*connect.Response[emptypb.Empty], error)
 	// Block until the given HTTP endpoint returns available, calling it through a HTTP Post request
@@ -395,95 +433,120 @@ type ApiContainerServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewApiContainerServiceHandler(svc ApiContainerServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	apiContainerServiceMethods := kurtosis_core_rpc_api_bindings.File_api_container_service_proto.Services().ByName("ApiContainerService").Methods()
 	apiContainerServiceRunStarlarkScriptHandler := connect.NewServerStreamHandler(
 		ApiContainerServiceRunStarlarkScriptProcedure,
 		svc.RunStarlarkScript,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("RunStarlarkScript")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceUploadStarlarkPackageHandler := connect.NewClientStreamHandler(
 		ApiContainerServiceUploadStarlarkPackageProcedure,
 		svc.UploadStarlarkPackage,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("UploadStarlarkPackage")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceRunStarlarkPackageHandler := connect.NewServerStreamHandler(
 		ApiContainerServiceRunStarlarkPackageProcedure,
 		svc.RunStarlarkPackage,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("RunStarlarkPackage")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceGetServicesHandler := connect.NewUnaryHandler(
 		ApiContainerServiceGetServicesProcedure,
 		svc.GetServices,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("GetServices")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceGetExistingAndHistoricalServiceIdentifiersHandler := connect.NewUnaryHandler(
 		ApiContainerServiceGetExistingAndHistoricalServiceIdentifiersProcedure,
 		svc.GetExistingAndHistoricalServiceIdentifiers,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("GetExistingAndHistoricalServiceIdentifiers")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceExecCommandHandler := connect.NewUnaryHandler(
 		ApiContainerServiceExecCommandProcedure,
 		svc.ExecCommand,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("ExecCommand")),
+		connect.WithHandlerOptions(opts...),
+	)
+	apiContainerServiceUpdateServiceHandler := connect.NewUnaryHandler(
+		ApiContainerServiceUpdateServiceProcedure,
+		svc.UpdateService,
+		connect.WithSchema(apiContainerServiceMethods.ByName("UpdateService")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceWaitForHttpGetEndpointAvailabilityHandler := connect.NewUnaryHandler(
 		ApiContainerServiceWaitForHttpGetEndpointAvailabilityProcedure,
 		svc.WaitForHttpGetEndpointAvailability,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("WaitForHttpGetEndpointAvailability")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceWaitForHttpPostEndpointAvailabilityHandler := connect.NewUnaryHandler(
 		ApiContainerServiceWaitForHttpPostEndpointAvailabilityProcedure,
 		svc.WaitForHttpPostEndpointAvailability,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("WaitForHttpPostEndpointAvailability")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceUploadFilesArtifactHandler := connect.NewClientStreamHandler(
 		ApiContainerServiceUploadFilesArtifactProcedure,
 		svc.UploadFilesArtifact,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("UploadFilesArtifact")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceDownloadFilesArtifactHandler := connect.NewServerStreamHandler(
 		ApiContainerServiceDownloadFilesArtifactProcedure,
 		svc.DownloadFilesArtifact,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("DownloadFilesArtifact")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceStoreWebFilesArtifactHandler := connect.NewUnaryHandler(
 		ApiContainerServiceStoreWebFilesArtifactProcedure,
 		svc.StoreWebFilesArtifact,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("StoreWebFilesArtifact")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceStoreFilesArtifactFromServiceHandler := connect.NewUnaryHandler(
 		ApiContainerServiceStoreFilesArtifactFromServiceProcedure,
 		svc.StoreFilesArtifactFromService,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("StoreFilesArtifactFromService")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceListFilesArtifactNamesAndUuidsHandler := connect.NewUnaryHandler(
 		ApiContainerServiceListFilesArtifactNamesAndUuidsProcedure,
 		svc.ListFilesArtifactNamesAndUuids,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("ListFilesArtifactNamesAndUuids")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceInspectFilesArtifactContentsHandler := connect.NewUnaryHandler(
 		ApiContainerServiceInspectFilesArtifactContentsProcedure,
 		svc.InspectFilesArtifactContents,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("InspectFilesArtifactContents")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceConnectServicesHandler := connect.NewUnaryHandler(
 		ApiContainerServiceConnectServicesProcedure,
 		svc.ConnectServices,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("ConnectServices")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceGetStarlarkRunHandler := connect.NewUnaryHandler(
 		ApiContainerServiceGetStarlarkRunProcedure,
 		svc.GetStarlarkRun,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("GetStarlarkRun")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceGetStarlarkScriptPlanYamlHandler := connect.NewUnaryHandler(
 		ApiContainerServiceGetStarlarkScriptPlanYamlProcedure,
 		svc.GetStarlarkScriptPlanYaml,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("GetStarlarkScriptPlanYaml")),
+		connect.WithHandlerOptions(opts...),
 	)
 	apiContainerServiceGetStarlarkPackagePlanYamlHandler := connect.NewUnaryHandler(
 		ApiContainerServiceGetStarlarkPackagePlanYamlProcedure,
 		svc.GetStarlarkPackagePlanYaml,
-		opts...,
+		connect.WithSchema(apiContainerServiceMethods.ByName("GetStarlarkPackagePlanYaml")),
+		connect.WithHandlerOptions(opts...),
 	)
 	return "/api_container_api.ApiContainerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -499,6 +562,8 @@ func NewApiContainerServiceHandler(svc ApiContainerServiceHandler, opts ...conne
 			apiContainerServiceGetExistingAndHistoricalServiceIdentifiersHandler.ServeHTTP(w, r)
 		case ApiContainerServiceExecCommandProcedure:
 			apiContainerServiceExecCommandHandler.ServeHTTP(w, r)
+		case ApiContainerServiceUpdateServiceProcedure:
+			apiContainerServiceUpdateServiceHandler.ServeHTTP(w, r)
 		case ApiContainerServiceWaitForHttpGetEndpointAvailabilityProcedure:
 			apiContainerServiceWaitForHttpGetEndpointAvailabilityHandler.ServeHTTP(w, r)
 		case ApiContainerServiceWaitForHttpPostEndpointAvailabilityProcedure:
@@ -554,6 +619,10 @@ func (UnimplementedApiContainerServiceHandler) GetExistingAndHistoricalServiceId
 
 func (UnimplementedApiContainerServiceHandler) ExecCommand(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.ExecCommandArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.ExecCommandResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api_container_api.ApiContainerService.ExecCommand is not implemented"))
+}
+
+func (UnimplementedApiContainerServiceHandler) UpdateService(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.UpdateServiceArgs]) (*connect.Response[kurtosis_core_rpc_api_bindings.UpdateServiceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api_container_api.ApiContainerService.UpdateService is not implemented"))
 }
 
 func (UnimplementedApiContainerServiceHandler) WaitForHttpGetEndpointAvailability(context.Context, *connect.Request[kurtosis_core_rpc_api_bindings.WaitForHttpGetEndpointAvailabilityArgs]) (*connect.Response[emptypb.Empty], error) {
